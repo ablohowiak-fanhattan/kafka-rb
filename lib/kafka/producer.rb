@@ -22,9 +22,9 @@ module Kafka
     def initialize(options = {})
       self.topic     = options[:topic]      || "test"
       self.partition = options[:partition]  || 0
-      self.host      = options[:host]       || HOST
-      self.port      = options[:port]       || PORT
-      self.connect(self.host, self.port)
+      hosts          = options[:hosts]
+      timeout        = options[:timeout]    || TIMEOUT
+      self.connect(hosts, timeout)
     end
 
     def send(messages)
