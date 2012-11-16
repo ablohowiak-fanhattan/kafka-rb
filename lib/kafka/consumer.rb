@@ -29,12 +29,12 @@ module Kafka
     def initialize(options = {})
       self.topic        = options[:topic]     || "test"
       self.partition    = options[:partition] || 0
-      self.host         = options[:host]      || HOST
-      self.port         = options[:port]      || PORT
+      self.hostlist     = options[:hosts]     || HOST
       self.offset       = options[:offset]
       self.max_size     = options[:max_size]  || MAX_SIZE
       self.polling      = options[:polling]   || DEFAULT_POLLING_INTERVAL
-      connect(host, port)
+      timeout           = options[:timeout]   || TIMEOUT
+      connect(self.hostlist, timeout)
     end
 
     def loop(&block)
