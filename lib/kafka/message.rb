@@ -87,7 +87,7 @@ module Kafka
           when 0 # a single uncompressed message
             messages << Kafka::Message.new(payload, magic, checksum)
           when 1 # a gzip-compressed message set -- parse recursively
-            uncompressed = Zlib::GzipReader.new(StringIO.new(payload)).read
+            uncompressed = Zlib::GzipReader.new(StringIO.new(payload), :encoding => "ASCII-8BIT").read
             message_set = parse_from(uncompressed)
             raise 'malformed compressed message' if message_set.size != uncompressed.size
             messages.concat(message_set.messages)
