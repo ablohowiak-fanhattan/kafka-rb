@@ -130,21 +130,24 @@ module Kafka
           else
             raise
           end
-        rescue Errno::EPIPE
+        rescue Errno::EPIPE, Errno::ECONNRESET, Errno::ETIMEDOUT
           if tries <= retries
             # Try to reconnect
             self.disconnect
             self.reconnect
 
+            # Reset data pointer so that we don't write
+            # mid-way through a message on reconnect
+            total = 0
             retry
           else
             raise
           end
         end
       end
-    rescue
+    rescue => err
       self.disconnect
-      raise SocketError, "cannot write: #{$!.message}"
+      raise SocketError.new("cannot write: #{$!.message}", err)
     end
 
   end
