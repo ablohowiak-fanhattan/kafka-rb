@@ -63,7 +63,13 @@ module Kafka
 
       while bytes_processed <= data.length - 5 # 5 = size of BASIC_MESSAGE_HEADER
         message_size, magic = data[bytes_processed, 5].unpack(BASIC_MESSAGE_HEADER)
-        break if bytes_processed + message_size + 4 > data.length # message is truncated
+        if bytes_processed + message_size + 4 > data.length # message is truncated
+          if bytes_processed == 0
+            raise "Message size (#{message_size}) exceeds data length #{data.length} for first message. Check your offset."
+          else
+            break
+          end
+        end
 
         case magic
         when 0
