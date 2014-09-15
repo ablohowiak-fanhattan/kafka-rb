@@ -58,21 +58,32 @@ module Kafka
 
     def fetch_latest_offset
       send_offsets_request(LATEST_OFFSET)
-      read_offsets_response
+      read_offsets_response[0]
     end
 
     def fetch_earliest_offset
       send_offsets_request(EARLIEST_OFFSET)
-      read_offsets_response
+      read_offsets_response[0]
     end
 
-    def send_offsets_request(offset)
+    def send_offsets_request(offset,num=MAX_OFFSETS)
       write(encoded_request_size)
-      write(encode_request(Kafka::RequestType::OFFSETS, topic, partition, offset, MAX_OFFSETS))
+      write(encode_request(Kafka::RequestType::OFFSETS, topic, partition, offset, num))
     end
 
     def read_offsets_response
       read_data_response[4,8].reverse.unpack('q')[0]
+    end
+
+    def new_read_offsets_response
+      data = read_data_response[4..-1]
+      result = []
+      while data && data.length > 0
+        result << data[0,8].reverse.unpack('q')[0]
+        data = data[8,data.length]
+      end
+
+      result.compact
     end
 
     def send_consume_request
